@@ -26,6 +26,8 @@ public class SynonymEngine {
         directory = new RAMDirectory(fsDir);  // #1
         fsDir.close();
         searcher = new IndexSearcher(directory);
+
+
     }
 
     public String[] getSynonyms(String word) throws IOException {
