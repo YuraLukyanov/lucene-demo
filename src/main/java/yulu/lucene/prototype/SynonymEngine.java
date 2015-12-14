@@ -32,7 +32,7 @@ public class SynonymEngine {
 
     public String[] getSynonyms(String word) throws IOException {
         ArrayList synList = new ArrayList();
-        Collector collector = ;  // #2
+        Collector collector = sd;  // #2
 
         searcher.search(new TermQuery(new Term("word", word)), collector);
         List<ScoreDoc> hits = collector.();
