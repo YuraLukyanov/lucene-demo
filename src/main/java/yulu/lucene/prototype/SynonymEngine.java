@@ -23,27 +23,23 @@ public class SynonymEngine {
 
     public SynonymEngine(File index) throws IOException {
         FSDirectory fsDir = new SimpleFSDirectory(index, null);
-        directory = new RAMDirectory(fsDir);  // #1
+        directory = new RAMDirectory(fsDir);
         fsDir.close();
         searcher = new IndexSearcher(directory);
-
-
     }
 
     public String[] getSynonyms(String word) throws IOException {
         ArrayList synList = new ArrayList();
-        Collector collector = sd;  // #2
 
-        searcher.search(new TermQuery(new Term("word", word)), collector);
-        List<ScoreDoc> hits = collector.();
-        Iterator<ScoreDoc> it = hits.iterator();
-        while(it.hasNext()) {                   // #3
-            ScoreDoc hit = it.next();
+        TopDocs docs = searcher.search(new TermQuery(new Term("word", word)), 10);
+        for (int i = 0; i < docs.scoreDocs.length; i++) {
+            ScoreDoc hit = docs.scoreDocs[i];
             Document doc = searcher.doc(hit.doc);
             String[] values = doc.getValues("syn");
-            for (int j = 0; j < values.length; j++) {  // #4
+            for (int j = 0; j < values.length; j++) {
                 synList.add(values[j]);
-            } }
+            }
+        }
         return (String[]) synList.toArray(new String[0]);
     }
 }
