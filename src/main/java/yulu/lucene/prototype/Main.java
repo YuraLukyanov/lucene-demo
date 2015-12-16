@@ -1,4 +1,4 @@
-package yulu.lucene.prototype.main;
+package yulu.lucene.prototype;
 
 import org.apache.lucene.analysis.miscellaneous.LimitTokenCountAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -14,7 +14,6 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.RAMDirectory;
-import yulu.lucene.prototype.SynonymAnalyzer;
 
 import java.io.IOException;
 
