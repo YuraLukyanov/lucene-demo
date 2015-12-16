@@ -1,0 +1,37 @@
+Input:
+            writer.addDocument(createDocument("Theodore Roosevelt freedom",
+                    "It behooves every man to remember that the work of the " +
+                            "critic, is of altogether secondary importance, and that, " +
+                            "in the end, progress is accomplished by the man who does " +
+                            "things."));
+            writer.addDocument(createDocument("Friedrich Hayek",
+                    "The case for individual freedom rests largely on the " +
+                            "recognition of the inevitable and universal ignorance " +
+                            "of all of us concerning a great many of the factors on " +
+                            "which the achievements of our ends and welfare depend."));
+            writer.addDocument(createDocument("Ayn Rand",
+                    "There is nothing to take a man's freedom away from " +
+                            "him, save other men. To be free, a man must be free " +
+                            "of his brothers."));
+            writer.addDocument(createDocument("Mohandas Gandhi",
+                    "Freedom is not worth having if it does not connote " +
+                            "freedom to err. zero"));
+
+initial query:
+        the freedom is nothing
+
+analyzed query(stop words were removed, synonyms were added):
+        (content:exemption content:freedom) ((content:nothing content:nil content:nix content:nada content:null content:aught content:cipher content:cypher content:goose content:naught content:zero content:zilch content:zip content:zippo) content:egg)
+
+Output:
+        3 total matching documents
+        Hits for "the freedom is nothing" were found in quotes by:
+        docId: 3	docScore: 0.09570437
+          1. Mohandas Gandhi
+        Content: Freedom is not worth having if it does not connote freedom to err. zero
+        docId: 2	docScore: 0.081783086
+          2. Ayn Rand
+        Content: There is nothing to take a man's freedom away from him, save other men. To be free, a man must be free of his brothers.
+        docId: 1	docScore: 0.016804466
+          3. Friedrich Hayek
+        Content: The case for individual freedom rests largely on the recognition of the inevitable and universal ignorance of all of us concerning a great many of the factors on which the achievements of our ends and welfare depend.
