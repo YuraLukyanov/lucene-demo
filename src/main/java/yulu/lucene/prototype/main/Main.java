@@ -1,17 +1,19 @@
 package yulu.lucene.prototype.main;
 
-import com.sun.java.util.jar.pack.ConstantPool;
-import org.apache.lucene.analysis.LimitTokenCountAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.LimitTokenCountAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import yulu.lucene.prototype.SynonymAnalyzer;
 
 import java.io.IOException;
@@ -23,13 +25,14 @@ public class Main {
 
     public static void main(String[] args) {
         RAMDirectory idx = new RAMDirectory();
+        IndexReader reader = null;
 
         try {
             // Make an writer to create the index
-            IndexWriter writer = new IndexWriter(idx, new IndexWriterConfig(Version.LUCENE_33, new LimitTokenCountAnalyzer(new StandardAnalyzer(Version.LUCENE_33), 10)));
+            IndexWriter writer = new IndexWriter(idx, new IndexWriterConfig(new LimitTokenCountAnalyzer(new StandardAnalyzer(), 10)));
 
             // Add some Document objects containing quotes
-            writer.addDocument(createDocument("Theodore Roosevelt",
+            writer.addDocument(createDocument("Theodore Roosevelt freedom",
                     "It behooves every man to remember that the work of the " +
                             "critic, is of altogether secondary importance, and that, " +
                             "in the end, progress is accomplished by the man who does " +
@@ -45,36 +48,44 @@ public class Main {
                             "of his brothers."));
             writer.addDocument(createDocument("Mohandas Gandhi",
                     "Freedom is not worth having if it does not connote " +
-                            "freedom to err."));
+                            "freedom to err. zero"));
 
-            // Optimize and close the writer to finish building the index
-            writer.optimize();
+            // close the writer to finish building the index
             writer.close();
 
             // Build an IndexSearcher using the in-memory index
-            IndexSearcher searcher = new IndexSearcher(idx);
+            reader = DirectoryReader.open(idx);
+            IndexSearcher searcher = new IndexSearcher(reader);
 
-            // Run some queries
-
-
-            searcher.close();
+            // Run a query
+            search(searcher, "the freedom is nothing");
         }
         catch (IOException ioe) {
             // In this example we aren't really doing an I/O, so this
             // exception should never actually be thrown.
             ioe.printStackTrace();
         }
-/*        catch (ParseException pe) {
+        catch (ParseException pe) {
             pe.printStackTrace();
-        }*/
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // In this example we aren't really doing an I/O, so this
+                    // exception should never actually be thrown.
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private static Document createDocument(String title, String content) {
         Document doc = new Document();
 
-        doc.add(new Field("title", title, Field.Store.YES, Field.Index.NO));
+        doc.add(new StringField("title", title, Field.Store.YES));
 
-        doc.add(new Field("content", content, Field.Store.YES, Field.Index.ANALYZED));
+        doc.add(new TextField("content", content, Field.Store.YES));
 
         return doc;
     }
@@ -83,15 +94,15 @@ public class Main {
             throws ParseException, IOException {
 
         // Build a Query object
-        QueryParser parser = new QueryParser(Version.LUCENE_30,
-                "content",
+        QueryParser parser = new QueryParser("content",
                 new SynonymAnalyzer());
         Query query = parser.parse(queryString);
+        System.out.println("Query:" + query.toString());
 
 
         int hitsPerPage = 10;
         // Search for the query
-        TopScoreDocCollector collector = TopScoreDocCollector.create(5 * hitsPerPage, false);
+        TopScoreDocCollector collector = TopScoreDocCollector.create(5 * hitsPerPage);
         searcher.search(query, collector);
 
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
